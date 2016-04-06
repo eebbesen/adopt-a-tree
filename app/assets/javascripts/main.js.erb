@@ -174,10 +174,8 @@ $(function() {
 
   google.maps.event.addListener(map, 'dblclick', function(event) {
     var center = new google.maps.LatLng(event.latLng.lat, event.latLng.lng);
-    // re-center so lat/long will populate
-    map.setCenter(event.latLng);
-    // don't recenter, but add markers around click area
-    // addMarkersAround(center.lat(), center.lng());
+    map.setCenter(event.latLng.lat, event.latLng.lng);
+    addMarkersAround(event.latLng.lat, event.latLng.lng);
   });
 
   $('#address_form').live('submit', function() {

@@ -172,6 +172,14 @@ $(function() {
     addMarkersAround(center.lat(), center.lng());
   });
 
+  google.maps.event.addListener(map, 'dblclick', function(event) {
+    var center = new google.maps.LatLng(event.latLng.lat, event.latLng.lng);
+    // re-center so lat/long will populate
+    map.setCenter(event.latLng);
+    // don't recenter, but add markers around click area
+    // addMarkersAround(center.lat(), center.lng());
+  });
+
   $('#address_form').live('submit', function() {
     var submitButton = $("#address_form input[type='submit']");
     $(submitButton).attr("disabled", true);

@@ -35,12 +35,20 @@ $(function() {
     origin,
     anchor
   );
+  var sponsorImage = new google.maps.MarkerImage('<%= image_path 'markers/sponsor.png' %>',
+    size,
+    origin,
+    anchor
+  );
   var activeThingId;
   var activeMarker;
   var activeInfoWindow;
   var isWindowOpen = false;
   var thingIds = [];
+  var sponsorIds = [];
 
+
+  /* FUNCTIONS */
   function insertFormErrors(form_name, form_prefix, data, errors){
     for (var attribute in data.errors){
       errors.push($('#'+form_prefix+'_'+attribute));
@@ -56,8 +64,77 @@ $(function() {
     $('html, body').animate({
       scrollTop: ($('#'+form_name+' .error').first().offset().top)
     }, 500);
-    //errors[0].focus();
   }
+
+  function addSponsor(sponsorId, sponsorTitle, point) {
+    var marker = new google.maps.Marker({
+      animation: google.maps.Animation.DROP,
+      icon: sponsorImage,
+      map: map,
+      position: point,
+      shadow: markerShadowImage,
+      title: sponsorTitle,
+      optimized: false
+    });
+    google.maps.event.addListener(marker, 'click', function(a, b, c) {
+      if(activeInfoWindow) {
+        activeInfoWindow.close();
+      }
+      var infoWindow = new google.maps.InfoWindow({
+        maxWidth: 210
+      });
+      google.maps.event.addListener(infoWindow, 'closeclick', function() {
+        isWindowOpen = false;
+      });
+      activeInfoWindow = infoWindow;
+      activeSponsorId = sponsorId;
+      activeMarker = marker;
+    });
+    sponsorIds.push(sponsorId);
+  }
+
+  function addSponsors() {
+    var submitButton = $("#address_form input[type='submit']");
+    $.ajax({
+      type: 'GET',
+      url: '/sponsors.json',
+      data: {
+        'utf8': '✓'
+      },
+      error: function(jqXHR) {
+        $(submitButton).attr("disabled", false);
+      },
+      success: function(data) {
+        $(submitButton).attr("disabled", false);
+        if(data.errors) {
+          $('#address').parent().addClass('error');
+          $('#address').focus();
+        } else {
+          $('#address').parent().removeClass('error');
+          var i = -1;
+          var sponsorTitles = [];
+          $(data).each(function(index, sponsor) {
+            var sponsorTitle = sponsor.id;
+            sponsorTitles.push(sponsorTitle);
+            if($.inArray(sponsor.id, sponsorIds) === -1) {
+              i += 1;
+            } else {
+              // continue
+              return true;
+            }
+            setTimeout(function() {
+              var point = new google.maps.LatLng(sponsor.lat, sponsor.long);
+              addSponsor(sponsor.id, sponsor.name, point);
+              if(index === i) {
+                // at this point the sponsors should exist in the DOM
+                addClassesAndIdsToSponsors(sponsorTitles);
+              }
+            }, i * 100);
+          });
+        }
+      }
+    });
+  };
 
   function addMarker(thingId, thingTitle, point, color) {
     if(color === 'green') {
@@ -167,10 +244,20 @@ $(function() {
     });
   };
 
+  function addClassesAndIdsToSponsors(sponsorTitles) {
+    $(sponsorTitles).each(function(i, tt) {
+      var $sponsor = $('div[title="' + tt + '"]');
+      $sponsor.addClass('sponsor');
+      $sponsor.attr('id', tt);
+    });
+  };
+
   google.maps.event.addListener(map, 'idle', function() {
     var center = map.getCenter();
     addMarkersAround(center.lat(), center.lng());
   });
+  addSponsors();
+
 
   $('#address_form').live('submit', function() {
     var submitButton = $("#address_form input[type='submit']");

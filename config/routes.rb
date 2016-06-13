@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   end
 
   resource :reminders
+  resource :sponsors
   resource :things
   resource :promo_codes, only: [:update]
   get '/promo_codes/use', to: 'promo_codes#use', as: 'promo_codes_use'

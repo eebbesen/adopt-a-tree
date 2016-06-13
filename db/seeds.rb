@@ -24,3 +24,15 @@ trees_data.each do |tree|
     t.species     = tree[66]
   end
 end
+
+Sponsor.create(name: "Minnepolis City Hall Brewery", 
+               location: "350 S 5th St, Minneapolis, MN 55415",
+               website: "https://cityhallbreweryminneapolis.com/adoptatree",
+               lat: 44.977360,
+               long: -93.265433)
+
+Sponsor.create(name: "Biblioteka Brewery", 
+               location: "300 Nicollet Mall, Minneapolis, MN 55401",
+               website: "https://bibliotekabrewingminneapolis.com/adoptatree",
+               lat: 44.980791,
+               long: -93.270062)

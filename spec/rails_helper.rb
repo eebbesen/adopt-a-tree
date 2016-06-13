@@ -1,5 +1,5 @@
 require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
+CodeClimate::TestReporter.start unless ENV["NO_CC"]
 
 ENV["RAILS_ENV"] ||= 'test'
 require 'spec_helper'
